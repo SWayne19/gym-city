@@ -14,25 +14,22 @@ class Payment extends Model
     protected static function boot()
     {
         parent::boot();
-        static::saved(function ($payment){
-            if($payment->status === 'paid'){
-
+        static::saved(function ($payment) {
+            if ($payment->status === 'paid') {
                 $membership = $payment->membership;
 
-                if($membership){
+                if ($membership) {
+                    $package = $membership->package;
+
                     $startDate = Carbon::today();
-                    $membership->start_date = $startDate->format('Y-m-d'); 
+                    $endDate = $package ? $startDate->copy()->addDays($package->duration_days) : $startDate;
+
+                    $membership->updateQuietly([
+                        'start_date' => $startDate->format('Y-m-d'),
+                        'end_date' => $endDate->format('Y-m-d'),
+                        'status' => 'active',
+                    ]);
                 }
-
-                $package = $membership->package;
-
-                if($package){
-                    $membership->end_date = $startDate->copy()->addDays($package->duration_days)->format('Y-m-d');
-                }
-
-                $membership->status = 'active';
-
-                $membership->saveQuietly();
             }
         });
     }

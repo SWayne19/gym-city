@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\PackageController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,12 @@ Route::controller(PackageController::class)->group(function () {
     Route::post('/packages', 'store')->name('packages.store');
     Route::put('/packages/{package}', 'update')->name('packages.update');
     Route::delete('/packages/{package}', 'destroy')->name('packages.destroy');
+});
+
+// membership
+Route::controller(MembershipController::class)->group(function () {
+    Route::get('/memberships', 'index')->name('memberships.index');
+    Route::post('/memberships', 'store')->name('memberships.store');
+    Route::put('/memberships/{membership}', 'update')->name('memberships.update');
+    Route::delete('/memberships/{membership}', 'destroy')->name('memberships.destroy');
 });
