@@ -13,10 +13,6 @@ Route::get('/', function () {
 // auth routes
 Route::middleware(['auth', 'verified'])->group(function () {
     
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
