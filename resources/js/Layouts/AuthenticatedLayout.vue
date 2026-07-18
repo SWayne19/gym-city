@@ -1,13 +1,24 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { router, Link, usePage } from '@inertiajs/vue3';
 
 const isLogoutModalOpen = ref(false);
 const isMobileSidebarOpen = ref(false); // Mobile Drawer State
+const isDarkMode = ref(false);
 const page = usePage();
 
 const openLogoutModal = () => { isLogoutModalOpen.value = true; };
 const closeLogoutModal = () => { isLogoutModalOpen.value = false; };
+
+const applyTheme = (enabled) => {
+    isDarkMode.value = enabled;
+    document.documentElement.classList.toggle('dark', enabled);
+    localStorage.setItem('theme', enabled ? 'dark' : 'light');
+};
+
+const toggleTheme = () => {
+    applyTheme(!isDarkMode.value);
+};
 
 const toggleMobileSidebar = () => {
     isMobileSidebarOpen.value = !isMobileSidebarOpen.value;
@@ -22,32 +33,39 @@ const confirmLogout = () => {
 const isRouteActive = (routeName) => {
     return route().current(routeName);
 };
+
+onMounted(() => {
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    applyTheme(storedTheme ? storedTheme === 'dark' : prefersDark);
+});
 </script>
 
 <template>
-    <div class="flex h-screen bg-slate-50/50 antialiased font-sans overflow-hidden">
+    <div class="flex h-screen bg-slate-50 antialiased font-sans overflow-hidden text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
         <div v-if="isMobileSidebarOpen" @click="toggleMobileSidebar"
-            class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300">
+            class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300">
         </div>
 
         <aside :class="isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-950 text-slate-200 flex flex-col z-50 border-r border-slate-900 shadow-2xl lg:shadow-none transition-transform duration-300 ease-out">
+            class="fixed lg:static inset-y-0 left-0 w-64 bg-white text-slate-700 flex flex-col z-50 border-r border-slate-200 shadow-2xl lg:shadow-none transition-transform duration-300 ease-out dark:bg-slate-950 dark:text-slate-200 dark:border-slate-800">
 
-            <div class="h-20 flex items-center justify-between px-6 border-b border-slate-900">
+            <div class="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
                 <div class="flex items-center space-x-3">
                     <div
                         class="h-9 w-9 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
                         <span class="text-slate-950 font-black text-base tracking-wider">GC</span>
                     </div>
                     <span
-                        class="text-lg font-black tracking-wider bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                        class="text-lg font-black tracking-wider bg-gradient-to-r from-slate-950 to-slate-500 bg-clip-text text-transparent dark:from-white dark:to-slate-400">
                         GYM CITY
                     </span>
                 </div>
 
                 <button @click="toggleMobileSidebar"
-                    class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-900 hover:text-white transition">
+                    class="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -57,17 +75,17 @@ const isRouteActive = (routeName) => {
             </div>
 
             <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-                <span class="px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase block mb-3">
+                <span class="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase block mb-3 dark:text-slate-500">
                     Core Dashboard
                 </span>
 
                 <Link :href="route('dashboard')"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group"
                     :class="isRouteActive('dashboard')
-                        ? 'bg-gradient-to-r from-amber-500/10 to-transparent text-amber-400 font-bold border-l-2 border-amber-400 shadow-sm'
-                        : 'text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 hover:translate-x-1'">
+                        ? 'bg-amber-50 text-amber-700 font-bold border-l-2 border-amber-500 shadow-sm dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-400'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 hover:translate-x-1 dark:text-slate-400 dark:hover:bg-slate-900/60 dark:hover:text-slate-200'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-colors duration-300"
-                        :class="isRouteActive('dashboard') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'"
+                        :class="isRouteActive('dashboard') ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
@@ -75,17 +93,17 @@ const isRouteActive = (routeName) => {
                     <span>Dashboard</span>
                 </Link>
 
-                <span class="px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase block pt-4 mb-3">
+                <span class="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase block pt-4 mb-3 dark:text-slate-500">
                     Management
                 </span>
 
                 <Link :href="route('users.index')"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group"
                     :class="isRouteActive('users.*')
-                        ? 'bg-gradient-to-r from-amber-500/10 to-transparent text-amber-400 font-bold border-l-2 border-amber-400 shadow-sm'
-                        : 'text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 hover:translate-x-1'">
+                        ? 'bg-amber-50 text-amber-700 font-bold border-l-2 border-amber-500 shadow-sm dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-400'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 hover:translate-x-1 dark:text-slate-400 dark:hover:bg-slate-900/60 dark:hover:text-slate-200'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-colors duration-300"
-                        :class="isRouteActive('users.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'"
+                        :class="isRouteActive('users.*') ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0-6a3.99 3.99 0 00-2.035-.104 4 4 0 11-.707-3.793A3.996 3.996 0 0015 15z" />
@@ -96,10 +114,10 @@ const isRouteActive = (routeName) => {
                 <Link :href="route('packages.index')"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group"
                     :class="isRouteActive('packages.*')
-                        ? 'bg-gradient-to-r from-amber-500/10 to-transparent text-amber-400 font-bold border-l-2 border-amber-400 shadow-sm'
-                        : 'text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 hover:translate-x-1'">
+                        ? 'bg-amber-50 text-amber-700 font-bold border-l-2 border-amber-500 shadow-sm dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-400'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 hover:translate-x-1 dark:text-slate-400 dark:hover:bg-slate-900/60 dark:hover:text-slate-200'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-colors duration-300"
-                        :class="isRouteActive('packages.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'"
+                        :class="isRouteActive('packages.*') ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -110,10 +128,10 @@ const isRouteActive = (routeName) => {
                 <Link :href="route('memberships.index')"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group"
                     :class="isRouteActive('memberships.*')
-                        ? 'bg-gradient-to-r from-amber-500/10 to-transparent text-amber-400 font-bold border-l-2 border-amber-400 shadow-sm'
-                        : 'text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 hover:translate-x-1'">
+                        ? 'bg-amber-50 text-amber-700 font-bold border-l-2 border-amber-500 shadow-sm dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-400'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 hover:translate-x-1 dark:text-slate-400 dark:hover:bg-slate-900/60 dark:hover:text-slate-200'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-colors duration-300"
-                        :class="isRouteActive('memberships.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'"
+                        :class="isRouteActive('memberships.*') ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -124,10 +142,10 @@ const isRouteActive = (routeName) => {
                 <Link :href="route('payments.index')"
                     class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group"
                     :class="isRouteActive('payments.*')
-                        ? 'bg-gradient-to-r from-amber-500/10 to-transparent text-amber-400 font-bold border-l-2 border-amber-400 shadow-sm'
-                        : 'text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 hover:translate-x-1'">
+                        ? 'bg-amber-50 text-amber-700 font-bold border-l-2 border-amber-500 shadow-sm dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-400'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 hover:translate-x-1 dark:text-slate-400 dark:hover:bg-slate-900/60 dark:hover:text-slate-200'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-colors duration-300"
-                        :class="isRouteActive('payments.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'"
+                        :class="isRouteActive('payments.*') ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -136,7 +154,7 @@ const isRouteActive = (routeName) => {
                 </Link>
             </nav>
 
-            <div class="p-4 border-t border-slate-900 bg-slate-950/60">
+            <div class="p-4 border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60">
                 <button @click="openLogoutModal"
                     class="w-full flex items-center justify-center space-x-2 p-3 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white text-sm font-semibold transition-all duration-200 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -152,10 +170,10 @@ const isRouteActive = (routeName) => {
         <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
             <header
-                class="h-20 bg-white border-b border-slate-100 flex justify-between items-center px-4 sm:px-8 shrink-0">
+                class="h-20 bg-white/90 border-b border-slate-200 flex justify-between items-center px-4 sm:px-8 shrink-0 backdrop-blur dark:bg-slate-950/90 dark:border-slate-800">
                 <div class="flex items-center space-x-3">
                     <button @click="toggleMobileSidebar"
-                        class="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition">
+                        class="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -163,23 +181,37 @@ const isRouteActive = (routeName) => {
                     </button>
 
                     <div class="hidden sm:block">
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Operational Panel</p>
-                        <h2 class="text-sm font-bold text-slate-700 mt-0.5">Gym Management Workspace</h2>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider dark:text-slate-500">Operational Panel</p>
+                        <h2 class="text-sm font-bold text-slate-700 mt-0.5 dark:text-slate-200">Gym Management Workspace</h2>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-3 pl-4 border-l border-slate-100 h-8">
+                <div class="flex items-center space-x-3 pl-4 border-l border-slate-200 h-8 dark:border-slate-800">
+                    <button @click="toggleTheme"
+                        class="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-amber-300 hover:text-amber-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-amber-500/50 dark:hover:text-amber-400"
+                        :aria-label="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
                     <div
-                        class="h-8 w-8 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200 text-slate-600 font-bold text-xs uppercase shadow-inner">
+                        class="h-8 w-8 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200 text-slate-600 font-bold text-xs uppercase shadow-inner dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300">
                         {{ page.props.auth.user.name.substring(0, 2) }}
                     </div>
-                    <span class="text-sm font-semibold text-slate-700 hidden md:inline">
+                    <span class="text-sm font-semibold text-slate-700 hidden md:inline dark:text-slate-200">
                         {{ page.props.auth.user.name }}
                     </span>
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50/60 custom-scrollbar">
+            <div class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 custom-scrollbar dark:bg-slate-950">
                 <slot />
             </div>
         </main>
@@ -187,8 +219,8 @@ const isRouteActive = (routeName) => {
         <div v-if="isLogoutModalOpen"
             class="fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-all animate-fade-in">
             <div
-                class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-100/80 transform scale-100 transition-transform">
-                <div class="h-12 w-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mb-4">
+                class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-100/80 transform scale-100 transition-transform dark:bg-slate-900 dark:border-slate-800">
+                <div class="h-12 w-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mb-4 dark:bg-rose-500/10">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -196,13 +228,13 @@ const isRouteActive = (routeName) => {
                     </svg>
                 </div>
 
-                <h3 class="text-base font-bold text-slate-900 mb-1">Confirm Session Logout</h3>
-                <p class="text-xs text-slate-500 leading-relaxed mb-6">Are you sure you want to end your current
+                <h3 class="text-base font-bold text-slate-900 mb-1 dark:text-white">Confirm Session Logout</h3>
+                <p class="text-xs text-slate-500 leading-relaxed mb-6 dark:text-slate-400">Are you sure you want to end your current
                     administrative session and sign out of Gym City?</p>
 
                 <div class="flex justify-end space-x-2.5">
                     <button @click="closeLogoutModal"
-                        class="px-4 py-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-200 transition">
+                        class="px-4 py-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-200 transition dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                         Keep Session
                     </button>
                     <button @click="confirmLogout"
