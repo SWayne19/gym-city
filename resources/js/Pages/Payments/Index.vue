@@ -179,8 +179,7 @@ const getStatusBadge = (status) => {
                             <tr v-for="pay in payments" :key="pay.id"
                                 class="text-sm text-slate-600 hover:bg-slate-50/50 transition">
                                 <td class="py-4">
-                                    <div class="font-bold text-slate-900">{{ pay.membership?.user?.name || 'Purged
-                                        Account' }}</div>
+                                    <div class="font-bold text-slate-900">{{ pay.membership?.user?.name || 'Purged Account' }}</div>
                                     <div class="text-[11px] text-slate-400 mt-0.5" v-if="pay.paid_at">
                                         Timestamp: {{ new Date(pay.paid_at).toLocaleString() }}
                                     </div>
